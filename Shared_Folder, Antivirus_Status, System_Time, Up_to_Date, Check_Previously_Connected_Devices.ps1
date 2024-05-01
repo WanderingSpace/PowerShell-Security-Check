@@ -17,7 +17,7 @@ try {
 } catch {
     
 }
-    Write-Host "Failed to retrieve SMB shares: $_
+    Write-Host "Failed to retrieve SMB shares: $_"
 
 
 
