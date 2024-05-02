@@ -16,27 +16,26 @@ try {
     }
 } catch {
     
-}
-    Write-Host "Failed to retrieve SMB shares: $_"
 
+    Write-Host "Failed to retrieve SMB shares: $_"
+}
 
 
 # Check and log antivirus status
 try {
     $avStatus = Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntivirusProduct
-    $avStatus | ForEach-Object {
-        $onAccessScanning = "Unknown"
-        switch ($_.productState) {
-            262144 { $onAccessScanning = "Enabled and up to date" }
-            262160 { $onAccessScanning = "Enabled and out of date" }
-            393216 { $onAccessScanning = "Disabled and up to date" }
-            393232 { $onAccessScanning = "Disabled and out of date" }
-            default { $onAccessScanning = "Status Unknown" }
+    if ($avStatus) {
+        foreach ($av in $avStatus) {
+            Write-Host "Antivirus Name: $($av.displayName)"
+            Write-Output "Antivirus Name: $($av.displayName)" | Out-File -FilePath "av_log.txt" -Append
         }
-        Write-Output "Antivirus Name: $($_.displayName) - OnAccess Scanning: $onAccessScanning" | Out-File -FilePath "av_log.txt" -Append
+    } else {
+        Write-Host "No antivirus product active or detected."
+        Write-Output "No antivirus product active or detected." | Out-File -FilePath "av_log.txt" -Append
     }
 } catch {
-    Write-Host "Failed to retrieve antivirus status."
+    Write-Host "Failed to retrieve antivirus status. Error: $_"
+    Write-Output "Failed to retrieve antivirus status. Error: $_" | Out-File -FilePath "av_log.txt" -Append
 }
 
 # Log system time changes (Monitor event ID 4616 in the Security log)
