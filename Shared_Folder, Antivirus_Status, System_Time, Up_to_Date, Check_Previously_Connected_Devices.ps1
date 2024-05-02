@@ -66,9 +66,12 @@ try {
     Write-Host "Failed to retrieve update information."
 }
 
-# Check previously connected devices
-Write-Host "Checking previously connected devices..."
-Get-WmiObject -Query "SELECT * FROM Win32_PnPEntity" | Where-Object { $_.ConfigManagerErrorCode -eq 0 } | Select-Object Name, Description, Status, DeviceID
+# Check last write times of critical configuration files
+$criticalFiles = @("C:\Windows\System32\drivers\etc\hosts", "C:\Windows\System32\config\SYSTEM")
+foreach ($file in $criticalFiles) {
+    $info = Get-Item $file
+    Write-Host "$($info.Name) was last written on $($info.LastWriteTime)"
+}
 
 # Write a message indicating completion
 Write-Host "System check complete."
